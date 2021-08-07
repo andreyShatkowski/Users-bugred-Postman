@@ -1,0 +1,617 @@
+{
+	"info": {
+		"_postman_id": "c0469133-e736-4b90-a94a-96a9190a1f34",
+		"name": "QA School User Andrey Shatkowski",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register user - /doregister",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//В дз к первой лекции по Постману я генерировал переменные из pre-request этим способом. Оставлю его, но твой мне нравится больше\r",
+							"\r",
+							"pm.environment.set(\"email\", Math.floor(Math.random() * 10000000) + \"@gmail.com\");\r",
+							"\r",
+							"pm.environment.set(\"password\", Math.floor(Math.random() * 10000000));\r",
+							"\r",
+							"// Код из лекции закомментирую\r",
+							"/*\r",
+							"const randValue = Math.random().toString().substring(2,9);\r",
+							"console.log(randValue);\r",
+							"\r",
+							"let email=randValue + \"@gmail.com\"\r",
+							"pm.environment.set(\"email\", email);\r",
+							"\r",
+							"// тут в лекции мы кажется забыли создать динамическую переменную для password\r",
+							"let password = \"12345\"\r",
+							"pm.environment.set(\"password\", password);\r",
+							"*/\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"//Сравнение значения полученного в response email cо сгенерированным в environment\r",
+							"pm.test(\"Email is correct - environment check\", function () {\r",
+							"    pm.expect(jsonData.email).to.eql(pm.environment.get(\"email\"));\r",
+							"});\r",
+							"\r",
+							"//Сравнение значения полученного в response email c отправленного в request\r",
+							"pm.test(\"Email is correct - request check\", function () {\r",
+							"    let body_request = JSON.parse(pm.request.body.raw);\r",
+							"    console.log(body_request);\r",
+							"    let email_request = body_request.email;\r",
+							"   console.log(email_request);\r",
+							"    pm.expect(jsonData.email).to.eql(email_request);\r",
+							"});\r",
+							"\r",
+							"//Валидация правильности заполнения полей\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"name\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"      \"avatar\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"      \"password\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"       \"birthday\": {\r",
+							"          \"type\": [\"number\", \"string\"]\r",
+							"      },\r",
+							"       \"email\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"       \"gender\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"       \"date_start\": {\r",
+							"          \"type\": [\"number\", \"string\"]\r",
+							"      },\r",
+							"        \"hobby\": {\r",
+							"          \"type\": \"string\"\r",
+							"      }\r",
+							"  }, \"required\": [\"name\",\"email\",\"password\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(\"Get user -/getUser\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\", \r\n    \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\r\n    \"password\": \"{{password}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doregister",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doregister"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user -/getUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"status\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Сохранение значения \"name\" в динамические переменные. Мой пример\r",
+							"let jsonData = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"name\", jsonData.name);\r",
+							"\r",
+							"//Код из лекции\r",
+							"/*\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"name\", jsonData.name);\r",
+							"*/\r",
+							"\r",
+							"//Сравнение значения полученного в response email cо сгенерированным в environment\r",
+							"pm.test(\"Email is correct\", function () {\r",
+							"    pm.expect(jsonData.email).to.eql(pm.environment.get(\"email\"));\r",
+							"});\r",
+							"\r",
+							"//Валидация правильности заполнения полей\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"name\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"      \"avatar\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"      \"password\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"       \"birthday\": {\r",
+							"          \"type\": [\"number\", \"string\"]\r",
+							"      },\r",
+							"       \"email\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"       \"gender\": {\r",
+							"          \"type\": \"string\"\r",
+							"      },\r",
+							"       \"date_start\": {\r",
+							"          \"type\": [\"number\", \"string\"]\r",
+							"      },\r",
+							"        \"hobby\": {\r",
+							"          \"type\": \"string\"\r",
+							"      }\r",
+							"  }, \"required\": [\"name\",\"email\",\"password\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(\"Login -/doLogin\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ourUrl}}/getUser?email={{email}}",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"getUser"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "{{email}}"
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login -/doLogin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Check result\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.result).to.eql(true);\r",
+							"    console.log(jsonData);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"result\": {\r",
+							"          \"type\": \"boolean\"\r",
+							"      }\r",
+							"  }, \"required\": [\"result\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"postman.setNextRequest('Login with inwalid email');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\"\r\n   \r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doLogin",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with inwalid email",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//негативный запрос - попытка ввести name вместо email. Проверка соответсвия полученного результата ожидаемому. \r",
+							"pm.test(\"Check result\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.result).to.eql(false);\r",
+							"    console.log(jsonData);\r",
+							"});\r",
+							"\r",
+							"//проверка на наличие обязательных полей в response\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"result\": {\r",
+							"          \"type\": \"boolean\"\r",
+							"      }\r",
+							"  }, \"required\": [\"result\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"postman.setNextRequest('Login without password');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\r\n{\r\n    \"email\": \"{{name}}\",   \r\n    \"password\": \"{{password}}\"   \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doLogin",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//негативный запрос - попытка оставить поле password пустым\r",
+							"//проверки что результат соответствует ожидаемому \r",
+							"pm.test(\"Check result\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.result).to.eql(false);\r",
+							"    console.log(jsonData);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"//проверка на наличие обязательных полей в response\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"result\": {\r",
+							"          \"type\": \"boolean\"\r",
+							"      }\r",
+							"  }, \"required\": [\"result\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"postman.setNextRequest('Login with inwalid password');"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\", \r\n    \"password\": \"\"\r\n   \r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doLogin",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with inwalid password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//негативный запрос - попытка ввести name вместо email\r",
+							"//проверки что результат соответствует ожидаемому \r",
+							"pm.test(\"Check result\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.result).to.eql(false);\r",
+							"    console.log(jsonData);\r",
+							"});\r",
+							"\r",
+							"//проверка на наличие обязательных полей\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"//проверка на наличие обязательных полей в response\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"result\": {\r",
+							"          \"type\": \"boolean\"\r",
+							"      }\r",
+							"  }, \"required\": [\"result\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"postman.setNextRequest(\"Register user Very long email\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"1' or '1'='1\"\r\n   \r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doLogin",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doLogin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register user Very long email",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// генерация в pre-request email длиной более 256 символов \r",
+							"\r",
+							"var bigEmail = \"01\";\r",
+							"    for(var i = 0; i < 250; i++) {\r",
+							"        bigEmail = bigEmail + Math.floor(Math.random() * 100);\r",
+							"    }\r",
+							"    console.log(bigEmail);\r",
+							"\r",
+							"let badEmail=bigEmail + \"@gmail.com\"\r",
+							"pm.environment.set(\"badEmail\", badEmail);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Ожидаем что система не пропустит email с длиной символов более 255 символов\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"//проверка на наличие обязательных полей в response\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"message\": {\r",
+							"          \"type\": \"string\"\r",
+							"      }\r",
+							"  }, \"required\": [\"message\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"\r",
+							"postman.setNextRequest(\"Login with CSV\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{badEmail}}\", \r\n    \"name\": \"{{$randomFirstName}} {{$randomLastName}}\",\r\n    \"password\": \"{{password}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doregister",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doregister"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with CSV",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Если ранить с csv файлом, то для одной из 10 итераций получаем ошибку, т.к мы отправляем заведомо пустой password\r",
+							"\r",
+							"pm.test(\"Check result\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.result).to.eql(true);\r",
+							"    console.log(jsonData);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"//проверка на наличие обязательных полей в response\r",
+							"var schema = {\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"      \"result\": {\r",
+							"          \"type\": \"boolean\"\r",
+							"      }\r",
+							"  }, \"required\": [\"result\"]\r",
+							"};\r",
+							"\r",
+							"pm.test('Schema is valid', function () {\r",
+							"    pm.expect(tv4.validate(jsonData, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"postman.setNextRequest(null);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\"\r\n   \r\n    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ourUrl}}/doLogin",
+					"host": [
+						"{{ourUrl}}"
+					],
+					"path": [
+						"doLogin"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
